@@ -20,11 +20,10 @@ func NewLogRepository(logFilePath string) *LogRepository {
 	}
 }
 
-func (r *LogRepository) SaveLog(log entity.Log) {
+func (r *LogRepository) SaveLog(log entity.Log) error {
 	file, err := os.OpenFile(r.logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Errorf("Failed to open log file: %v", err)
-		return
+		return fmt.Errorf("Failed to open log file: %v", err)
 	}
 	defer file.Close()
 
@@ -32,14 +31,16 @@ func (r *LogRepository) SaveLog(log entity.Log) {
 		log.Timestamp.Format(time.RFC3339), log.Category, log.NotificationType, log.Message, log.ID, log.UserID)
 
 	if _, err := file.WriteString(logEntry); err != nil {
-		fmt.Errorf("Failed to write log entry: %v", err)
+		return fmt.Errorf("Failed to write log entry: %v", err)
 	}
+
+	return nil
 }
 
 func (r *LogRepository) GetLogs() ([]entity.Log, error) {
 	file, err := os.Open(r.logFilePath)
 	if err != nil {
-		fmt.Errorf("Failed to open log file: %v", err)
+		err := fmt.Errorf("Failed to open log file: %v", err)
 		return nil, err
 	}
 	defer file.Close()
@@ -50,18 +51,26 @@ func (r *LogRepository) GetLogs() ([]entity.Log, error) {
 		logEntry := scanner.Text()
 		log, err := parseLogEntry(logEntry)
 		if err != nil {
-			fmt.Errorf("Failed to parse log entry: %v", err)
+			fmt.Printf("Failed to parse log entry: %v", err)
 			continue
 		}
 		logs = append(logs, log)
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Errorf("Failed to scan log file: %v", err)
+		err = fmt.Errorf("Failed to scan log file: %v", err)
 		return nil, err
 	}
 
 	return logs, nil
+}
+
+func (r *LogRepository) DeleteLogs() error {
+	err := os.Remove(r.logFilePath)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func parseLogEntry(logEntry string) (entity.Log, error) {

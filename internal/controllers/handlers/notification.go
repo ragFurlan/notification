@@ -63,7 +63,26 @@ func (h *NotificationHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(logs)
 }
 
+func (h *NotificationHandler) DeleteLogs(w http.ResponseWriter, r *http.Request) {
+	err := h.NotificationUseCase.DeleteLogs()
+	if err != nil {
+		http.Error(w, "Failed on delete logs", http.StatusInternalServerError)
+		return
+	}
+
+	response := struct {
+		Message string `json:"message"`
+	}{
+		Message: "Logs deleted",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
 func (h *NotificationHandler) RegisterRoutes() {
+	// TODO: fazer com que o add seja um post e o delete um put
 	http.HandleFunc("/add", h.SubmitNotification)
 	http.HandleFunc("/get", h.GetLogs)
+	http.HandleFunc("/delete", h.DeleteLogs)
 }

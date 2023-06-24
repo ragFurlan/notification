@@ -163,6 +163,10 @@ func (app *NotificationUseCase) GetLogs() ([]entity.Log, error) {
 	return app.LogRepository.GetLogs()
 }
 
+func (app *NotificationUseCase) DeleteLogs() error {
+	return app.LogRepository.DeleteLogs()
+}
+
 // Helper function to get the notifier type as a string
 func GetNotifierType(notifier entity.Notifier) string {
 	switch notifier.(type) {

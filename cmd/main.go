@@ -9,19 +9,19 @@ import (
 )
 
 var (
-	url           = "../internal/logs.txt"
-	logRepository *log.LogRepository
+	url                 = "../internal/logs.txt"
+	notificationUseCase *notification.NotificationUseCase
 )
 
 func main() {
+	logRepository := log.NewLogRepository(url)
+	notificationUseCase = notification.NewNotificationUseCase(*logRepository)
 	StartServer()
 
 }
 
 func StartServer() {
-	logRepository = log.NewLogRepository(url)
-	notificationApp := notification.NewNotificationUseCase(*logRepository)
-	handler := handler.NewNotificationHandler(notificationApp)
+	handler := handler.NewNotificationHandler(notificationUseCase)
 	handler.RegisterRoutes()
 
 	fmt.Println("Server listening on http://localhost:8080")
