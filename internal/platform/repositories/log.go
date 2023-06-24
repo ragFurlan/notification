@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"notification/internal/entity"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -67,6 +68,10 @@ func (r *LogRepository) GetLogs() ([]entity.Log, error) {
 		err = fmt.Errorf("Failed to scan log file: %v", err)
 		return nil, err
 	}
+
+	sort.Slice(logs, func(i, j int) bool {
+		return logs[i].Timestamp.After(logs[j].Timestamp)
+	})
 
 	return logs, nil
 }
