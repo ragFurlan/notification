@@ -12,15 +12,15 @@ type User struct {
 type Category string
 
 const (
-	Sports  Category = "Sports"
-	Finance Category = "Finance"
-	Movies  Category = "Movies"
+	SportsCategory  Category = "Sports"
+	FinanceCategory Category = "Finance"
+	MoviesCategory  Category = "Movies"
 )
 
 type Channel string
 
 const (
-	Email Channel = "Email"
-	Push  Channel = "Push"
-	SMS   Channel = "SMS"
+	EmailChannel Channel = "Email"
+	PushChannel  Channel = "Push"
+	SMSChannel   Channel = "SMS"
 )
