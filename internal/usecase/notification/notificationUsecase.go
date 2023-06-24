@@ -3,7 +3,7 @@ package notification
 import (
 	"fmt"
 	"notification/internal/entity"
-	"notification/internal/platform/repositories"
+	log "notification/internal/platform/repositories"
 	"notification/internal/usecase/email"
 	"notification/internal/usecase/push"
 	"notification/internal/usecase/sms"
@@ -13,14 +13,14 @@ import (
 )
 
 type NotificationUseCase struct {
-	LogRepository *log.LogRepository
+	LogRepository log.Log
 	SMSUsecase    *sms.SMSUsecase
 	EmailUsecase  *email.EmailUsecase
 	PushUsecase   *push.PushUsecase
 	Observers     []entity.Observer
 }
 
-func NewNotificationUseCase(logRepository log.LogRepository) *NotificationUseCase {
+func NewNotificationUseCase(log log.Log) *NotificationUseCase {
 
 	smsUsecase := &sms.SMSUsecase{}
 	emailUsecase := &email.EmailUsecase{}
@@ -28,7 +28,7 @@ func NewNotificationUseCase(logRepository log.LogRepository) *NotificationUseCas
 	observers := make([]entity.Observer, 0)
 
 	return &NotificationUseCase{
-		LogRepository: &logRepository,
+		LogRepository: log,
 		SMSUsecase:    smsUsecase,
 		EmailUsecase:  emailUsecase,
 		PushUsecase:   pushUsecase,

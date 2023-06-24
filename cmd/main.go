@@ -15,7 +15,7 @@ var (
 
 func main() {
 	logRepository := log.NewLogRepository(url)
-	notificationUseCase = notification.NewNotificationUseCase(*logRepository)
+	notificationUseCase = notification.NewNotificationUseCase(logRepository)
 	StartServer()
 
 }

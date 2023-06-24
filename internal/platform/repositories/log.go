@@ -14,7 +14,13 @@ type LogRepository struct {
 	logFilePath string
 }
 
-func NewLogRepository(logFilePath string) *LogRepository {
+type Log interface {
+	SaveLog(log entity.Log) error
+	GetLogs() ([]entity.Log, error)
+	DeleteLogs() error
+}
+
+func NewLogRepository(logFilePath string) Log {
 	return &LogRepository{
 		logFilePath: logFilePath,
 	}
