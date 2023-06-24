@@ -74,7 +74,7 @@ func (h *NotificationHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *NotificationHandler) DeleteLogs(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPut {
+	if r.Method != http.MethodDelete {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}

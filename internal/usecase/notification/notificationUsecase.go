@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"notification/internal/entity"
 	log "notification/internal/platform/repositories"
-	"notification/internal/usecase/email"
-	"notification/internal/usecase/push"
-	"notification/internal/usecase/sms"
+	"notification/internal/usecase/notifiers"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,17 +12,20 @@ import (
 
 type NotificationUseCase struct {
 	LogRepository log.Log
-	SMSUsecase    *sms.SMSUsecase
-	EmailUsecase  *email.EmailUsecase
-	PushUsecase   *push.PushUsecase
+	SMSUsecase    *notifiers.SMSUsecase
+	EmailUsecase  *notifiers.EmailUsecase
+	PushUsecase   *notifiers.PushUsecase
 	Observers     []entity.Observer
 }
 
-func NewNotificationUseCase(log log.Log) *NotificationUseCase {
+type Notifier interface {
+	SendNotification(user entity.User, message string) error
+}
 
-	smsUsecase := &sms.SMSUsecase{}
-	emailUsecase := &email.EmailUsecase{}
-	pushUsecase := &push.PushUsecase{}
+func NewNotificationUseCase(log log.Log) *NotificationUseCase {
+	smsUsecase := &notifiers.SMSUsecase{}
+	emailUsecase := &notifiers.EmailUsecase{}
+	pushUsecase := &notifiers.PushUsecase{}
 	observers := make([]entity.Observer, 0)
 
 	return &NotificationUseCase{
@@ -33,16 +34,6 @@ func NewNotificationUseCase(log log.Log) *NotificationUseCase {
 		EmailUsecase:  emailUsecase,
 		PushUsecase:   pushUsecase,
 		Observers:     observers,
-	}
-}
-
-func (n *NotificationUseCase) RegisterObserver(observer entity.Observer) {
-	n.Observers = append(n.Observers, observer)
-}
-
-func (n *NotificationUseCase) NotifyObservers(notification entity.Notification) {
-	for _, observer := range n.Observers {
-		observer.Update(notification)
 	}
 }
 
@@ -146,8 +137,8 @@ func (n *NotificationUseCase) send(notification entity.Notification, user entity
 	return logs, nil
 }
 
-func (n *NotificationUseCase) getNotifiers(channels []entity.Channel) []entity.Notifier {
-	notifiers := make([]entity.Notifier, 0)
+func (n *NotificationUseCase) getNotifiers(channels []entity.Channel) []Notifier {
+	notifiers := make([]Notifier, 0)
 	fmt.Println(len(notifiers))
 
 	for _, channel := range channels {
@@ -165,13 +156,13 @@ func (n *NotificationUseCase) getNotifiers(channels []entity.Channel) []entity.N
 	return notifiers
 }
 
-func (n *NotificationUseCase) getNotifierType(notifier entity.Notifier) string {
+func (n *NotificationUseCase) getNotifierType(notifier Notifier) string {
 	switch notifier.(type) {
-	case *sms.SMSUsecase:
+	case *notifiers.SMSUsecase:
 		return "SMS"
-	case *email.EmailUsecase:
+	case *notifiers.EmailUsecase:
 		return "E-Mail"
-	case *push.PushUsecase:
+	case *notifiers.PushUsecase:
 		return "Push Notification"
 	default:
 		return "Unknown"

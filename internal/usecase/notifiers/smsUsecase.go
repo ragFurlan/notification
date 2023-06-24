@@ -1,4 +1,4 @@
-package sms
+package notifiers
 
 import (
 	"fmt"
