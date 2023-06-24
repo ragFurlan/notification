@@ -96,7 +96,6 @@ func (h *NotificationHandler) DeleteLogs(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *NotificationHandler) RegisterRoutes() {
-	// TODO: fazer com que o add seja um post e o delete um put
 	http.HandleFunc("/add", h.SubmitNotification)
 	http.HandleFunc("/get", h.GetLogs)
 	http.HandleFunc("/delete", h.DeleteLogs)

@@ -87,12 +87,8 @@ func (r *LogRepository) DeleteLogs() error {
 func parseLogEntry(logEntry string) (entity.Log, error) {
 	var log entity.Log
 
-	// Split the log entry string by newline characters
 	lines := strings.Split(logEntry, "|")
-
-	// Iterate through each line and parse the log fields
 	for _, line := range lines {
-		// Extract the key-value pairs from each line
 		parts := strings.SplitN(line, ": ", 2)
 		if len(parts) != 2 {
 			return log, fmt.Errorf("invalid log entry format: %s", logEntry)
@@ -101,7 +97,6 @@ func parseLogEntry(logEntry string) (entity.Log, error) {
 		key := strings.TrimSpace(parts[0])
 		value := strings.TrimSpace(parts[1])
 
-		// Set the log field based on the key
 		switch key {
 		case "Timestamp":
 			timestamp, err := time.Parse(time.RFC3339, value)
@@ -120,7 +115,6 @@ func parseLogEntry(logEntry string) (entity.Log, error) {
 			log.UserID = userID
 		case "ID":
 			log.ID = value
-
 		}
 	}
 
