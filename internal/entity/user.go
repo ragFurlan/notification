@@ -24,8 +24,3 @@ const (
 	Push  Channel = "Push"
 	SMS   Channel = "SMS"
 )
-
-func (u *User) Update(notification Notification) {
-	//  TODO: Handle the received notification for the user
-	// You can implement the specific logic here, such as sending the notification through the user's preferred channels (SMS, email, etc.)
-}

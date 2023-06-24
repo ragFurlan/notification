@@ -18,6 +18,11 @@ func NewNotificationHandler(notificationUseCase *notification.NotificationUseCas
 }
 
 func (h *NotificationHandler) SubmitNotification(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	var requestBody struct {
 		Category entity.Category `json:"category"`
 		Message  string          `json:"message"`
@@ -53,6 +58,11 @@ func (h *NotificationHandler) SubmitNotification(w http.ResponseWriter, r *http.
 }
 
 func (h *NotificationHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	logs, err := h.NotificationUseCase.GetLogs()
 	if err != nil {
 		http.Error(w, "Failed to get logs", http.StatusInternalServerError)
@@ -64,6 +74,11 @@ func (h *NotificationHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *NotificationHandler) DeleteLogs(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	err := h.NotificationUseCase.DeleteLogs()
 	if err != nil {
 		http.Error(w, "Failed on delete logs", http.StatusInternalServerError)
