@@ -1,35 +1,38 @@
 package notification
 
 import (
+	"fmt"
 	"notification/internal/entity"
 	log "notification/internal/platform/repositories"
 	email "notification/internal/usecase/email"
 	push "notification/internal/usecase/push"
 	sms "notification/internal/usecase/sms"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type NotificationUseCase struct {
-	LogRepository           *log.LogRepository
-	SMSService              *sms.SMSUsecase
-	EmailService            *email.EmailUsecase
-	PushNotificationService *push.PushUsecase
-	Observers               []entity.Observer
+	LogRepository *log.LogRepository
+	SMSUsecase    *sms.SMSUsecase
+	EmailUsecase  *email.EmailUsecase
+	PushUsecase   *push.PushUsecase
+	Observers     []entity.Observer
 }
 
-func NewNotificationUseCase() *NotificationUseCase {
-	logRepository := &log.LogRepository{}
-	smsService := &sms.SMSUsecase{}
-	emailService := &email.EmailUsecase{}
-	pushNotificationService := &push.PushUsecase{}
+func NewNotificationUseCase(logRepository log.LogRepository) *NotificationUseCase {
+
+	smsUsecase := &sms.SMSUsecase{}
+	emailUsecase := &email.EmailUsecase{}
+	pushUsecase := &push.PushUsecase{}
 	observers := make([]entity.Observer, 0)
 
 	return &NotificationUseCase{
-		LogRepository:           logRepository,
-		SMSService:              smsService,
-		EmailService:            emailService,
-		PushNotificationService: pushNotificationService,
-		Observers:               observers,
+		LogRepository: &logRepository,
+		SMSUsecase:    smsUsecase,
+		EmailUsecase:  emailUsecase,
+		PushUsecase:   pushUsecase,
+		Observers:     observers,
 	}
 }
 
@@ -43,51 +46,68 @@ func (app *NotificationUseCase) NotifyObservers(notification entity.Notification
 	}
 }
 
-func (app *NotificationUseCase) GetNotifiers(category entity.Category) []entity.Notifier {
-	switch category {
-	case entity.Sports:
-		return []entity.Notifier{app.SMSService}
-	case entity.Finance:
-		return []entity.Notifier{app.EmailService, app.PushNotificationService}
-	case entity.Movies:
-		return []entity.Notifier{app.EmailService}
-	default:
-		return []entity.Notifier{}
+func (app *NotificationUseCase) GetNotifiers(channels []entity.Channel) []entity.Notifier {
+	notifiers := make([]entity.Notifier, 0)
+	fmt.Println(len(notifiers))
+
+	for _, channel := range channels {
+		switch channel {
+		case entity.Email:
+			notifiers = append(notifiers, app.EmailUsecase)
+		case entity.SMS:
+			notifiers = append(notifiers, app.SMSUsecase)
+		case entity.Push:
+			notifiers = append(notifiers, app.PushUsecase)
+		}
+
 	}
+
+	return notifiers
 }
 
 func (app *NotificationUseCase) SendNotification(notification entity.Notification) ([]entity.Log, error) {
 	var logs []entity.Log
+	users := app.GetUsersByCategory(notification.Category)
+	for _, user := range users {
+		logsOfUsers, err := app.Send(notification, user)
+		if err != nil {
+			// TODO: Handle error
+		}
 
-	for _, notifier := range notification.Notifiers {
-		users := app.GetUsersByCategory(notification.Category)
-		for _, user := range users {
-			err := notifier.SendNotification(user, notification.Message)
-			if err != nil {
-				// TODO: Handle error
-			}
-
-			log := entity.Log{
-				Message:          notification.Message,
-				Category:         notification.Category,
-				NotificationType: GetNotifierType(notifier),
-				Timestamp:        time.Now(),
-			}
-
-			app.LogRepository.SaveLog(log)
+		for _, log := range logsOfUsers {
 			logs = append(logs, log)
 		}
+
+	}
+
+	return logs, nil
+
+}
+
+func (app *NotificationUseCase) Send(notification entity.Notification, user entity.User) ([]entity.Log, error) {
+	var logs []entity.Log
+	notifiers := app.GetNotifiers(user.Channels)
+	for _, notifier := range notifiers {
+		err := notifier.SendNotification(user, notification.Message)
+		if err != nil {
+			// TODO: Handle error
+		}
+
+		log := entity.Log{
+			ID:               uuid.New().String(),
+			UserID:           user.ID,
+			Message:          notification.Message,
+			Category:         notification.Category,
+			NotificationType: GetNotifierType(notifier),
+			Timestamp:        time.Now(),
+		}
+
+		app.LogRepository.SaveLog(log)
+		logs = append(logs, log)
 	}
 
 	return logs, nil
 }
-
-// func (app *NotificationUseCase) Send(notifier entity.Notifier, user entity.User) ([]entity.Log, error) {
-// 	for _, channel := range user.Channels {
-
-// 	}
-
-// }
 
 func (app *NotificationUseCase) GetUsersByCategory(category entity.Category) []entity.User {
 	var users []entity.User
@@ -101,7 +121,7 @@ func (app *NotificationUseCase) GetUsersByCategory(category entity.Category) []e
 				Email:       "mary.alexander@outlook.com",
 				PhoneNumber: "78958745",
 				Subscribed:  []entity.Category{entity.Sports},
-				Channels:    []string{"SMS", "E-Mail", "Push Notification"},
+				Channels:    []entity.Channel{"SMS", "Email", "Push"},
 			},
 		}
 	case entity.Finance:
@@ -112,7 +132,7 @@ func (app *NotificationUseCase) GetUsersByCategory(category entity.Category) []e
 				Email:       "antony.smith@gmail.com",
 				PhoneNumber: "4134132441",
 				Subscribed:  []entity.Category{entity.Finance},
-				Channels:    []string{"E-Mail", "Push Notification"},
+				Channels:    []entity.Channel{"Email", "Push"},
 			},
 		}
 	case entity.Movies:
@@ -123,7 +143,7 @@ func (app *NotificationUseCase) GetUsersByCategory(category entity.Category) []e
 				Email:       "any.johnson@gmail.com",
 				PhoneNumber: "+123456789",
 				Subscribed:  []entity.Category{entity.Movies},
-				Channels:    []string{"SMS", "E-Mail"},
+				Channels:    []entity.Channel{"SMS", "Email"},
 			},
 			{
 				ID:          4,
@@ -131,7 +151,7 @@ func (app *NotificationUseCase) GetUsersByCategory(category entity.Category) []e
 				Email:       "fred.williams@hotmail.com",
 				PhoneNumber: "78459214465",
 				Subscribed:  []entity.Category{entity.Movies},
-				Channels:    []string{"E-Mail"},
+				Channels:    []entity.Channel{"Email"},
 			},
 		}
 	}
@@ -139,7 +159,7 @@ func (app *NotificationUseCase) GetUsersByCategory(category entity.Category) []e
 	return users
 }
 
-func (app *NotificationUseCase) GetLogs() []entity.Log {
+func (app *NotificationUseCase) GetLogs() ([]entity.Log, error) {
 	return app.LogRepository.GetLogs()
 }
 

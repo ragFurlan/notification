@@ -3,7 +3,7 @@ package entity
 import "time"
 
 type Log struct {
-	ID               int
+	ID               string
 	UserID           int
 	Message          string
 	Category         Category

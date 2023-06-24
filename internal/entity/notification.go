@@ -1,9 +1,8 @@
 package entity
 
 type Notification struct {
-	Message   string
-	Category  Category
-	Notifiers []Notifier
+	Message  string
+	Category Category
 }
 
 type Notifier interface {

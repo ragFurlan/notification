@@ -1,0 +1,6 @@
+Timestamp: 2023-06-24T12:00:18-03:00|Category: Sports|Notification Type: SMS|Message: teste teste|ID: 269a1134-f55b-4570-a45e-b2ff2e2293cc|UserID: 1
+Timestamp: 2023-06-24T12:00:18-03:00|Category: Sports|Notification Type: E-Mail|Message: teste teste|ID: 07d0995f-fbd8-4c87-adb1-ee118218c4b1|UserID: 1
+Timestamp: 2023-06-24T12:00:18-03:00|Category: Sports|Notification Type: Push Notification|Message: teste teste|ID: 24f85e2f-1307-4e4f-9e84-de39ea06cbb7|UserID: 1
+Timestamp: 2023-06-24T12:00:23-03:00|Category: Movies|Notification Type: SMS|Message: teste teste|ID: cf433b5a-7d76-4bb8-88e5-1fa67a2feed0|UserID: 3
+Timestamp: 2023-06-24T12:00:23-03:00|Category: Movies|Notification Type: E-Mail|Message: teste teste|ID: 09a663f7-83dc-4ae1-8665-205563664c2b|UserID: 3
+Timestamp: 2023-06-24T12:00:23-03:00|Category: Movies|Notification Type: E-Mail|Message: teste teste|ID: 56cf4dd5-f1ab-4803-8097-a33aed2de07e|UserID: 4

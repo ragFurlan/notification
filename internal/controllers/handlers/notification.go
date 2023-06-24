@@ -1,8 +1,7 @@
-package notification_api
+package notification_handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"notification/internal/entity"
 	"notification/internal/usecase/notification"
@@ -31,9 +30,8 @@ func (h *NotificationHandler) SubmitNotification(w http.ResponseWriter, r *http.
 	}
 
 	notification := entity.Notification{
-		Message:   requestBody.Message,
-		Category:  requestBody.Category,
-		Notifiers: h.NotificationUseCase.GetNotifiers(requestBody.Category),
+		Message:  requestBody.Message,
+		Category: requestBody.Category,
 	}
 
 	logs, err := h.NotificationUseCase.SendNotification(notification)
@@ -55,22 +53,17 @@ func (h *NotificationHandler) SubmitNotification(w http.ResponseWriter, r *http.
 }
 
 func (h *NotificationHandler) GetLogs(w http.ResponseWriter, r *http.Request) {
-	logs := h.NotificationUseCase.GetLogs()
+	logs, err := h.NotificationUseCase.GetLogs()
+	if err != nil {
+		http.Error(w, "Failed to get logs", http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(logs)
 }
 
 func (h *NotificationHandler) RegisterRoutes() {
-	http.HandleFunc("/submit", h.SubmitNotification)
-	http.HandleFunc("/logs", h.GetLogs)
-}
-
-func StartServer() {
-	notificationApp := notification.NewNotificationUseCase()
-	handler := NewNotificationHandler(notificationApp)
-	handler.RegisterRoutes()
-
-	fmt.Println("Server listening on http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/add", h.SubmitNotification)
+	http.HandleFunc("/get", h.GetLogs)
 }
