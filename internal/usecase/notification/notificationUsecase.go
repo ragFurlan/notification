@@ -127,7 +127,11 @@ func (n NotificationUseCase) send(notification entity.Notification, user entity.
 			Timestamp:        time.Now(),
 		}
 
-		n.LogRepository.SaveLog(log)
+		err = n.LogRepository.SaveLog(log)
+		if err != nil {
+			return nil, err
+		}
+
 		logs = append(logs, log)
 	}
 

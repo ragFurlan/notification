@@ -15,7 +15,7 @@ import (
 
 var anyError = errors.New("Error")
 
-func TestNotification_SendNotification_Success(t *testing.T) {
+func TestNotification_Success(t *testing.T) {
 	controller := gomock.NewController(t)
 
 	defer controller.Finish()
