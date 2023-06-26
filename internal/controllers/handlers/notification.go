@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"notification/internal/entity"
 	"notification/internal/usecase/notification"
+
+	"github.com/gorilla/mux"
 )
 
 type NotificationHandler struct {
@@ -95,8 +97,11 @@ func (h *NotificationHandler) DeleteLogs(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(response)
 }
 
-func (h *NotificationHandler) RegisterRoutes() {
-	http.HandleFunc("/add", h.SubmitNotification)
-	http.HandleFunc("/get", h.GetLogs)
-	http.HandleFunc("/delete", h.DeleteLogs)
+func (h *NotificationHandler) RegisterRoutes() *mux.Router {
+	router := mux.NewRouter()
+	router.HandleFunc("/add", h.SubmitNotification)
+	router.HandleFunc("/get", h.GetLogs)
+	router.HandleFunc("/delete", h.DeleteLogs)
+
+	return router
 }
