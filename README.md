@@ -26,12 +26,12 @@ The use of the `Notifier` interface and separate implementation for each type of
 ### usecase
 ```
 ~/go/bin/mockgen -source=internal/usecase/notification/notificationUsecase.go -destination=test/usecase/notificationUsecase.go -package=log
-
 ```
 
 # Run tests
-
+```
 go test ./... -gcflags=-l
+```
 
 
 
