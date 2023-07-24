@@ -1,22 +1,17 @@
 package notification_handler
 
 import (
-	//"fmt"
-	//"bytes"
-	//"encoding/json"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
-	"time"
-	//"encoding/json"
-	//"io"
 	"net/http"
 	"net/http/httptest"
 	"notification/internal/entity"
 	usecase "notification/internal/usecase/notification"
 	log "notification/test/platform"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
